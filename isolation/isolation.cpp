@@ -52,7 +52,7 @@ class gamestate
       }
       int islegalmove(int row, int col, int player)
       {
-         int currentpos;
+         int currentpos, newpos;
          if (player == 1)
          {
             currentpos = pos1;
@@ -61,6 +61,7 @@ class gamestate
          {
             currentpos = pos2;
          }
+         newpos = row*5+col;
          // check in bounds
          if (row < 0 || row > 4 || col < 0 || col > 4)
          {
@@ -98,6 +99,23 @@ class gamestate
             }
    //         cout << "Same col as last position\n";
          }
+         else if (abs(currentpos%5-col) == abs(currentpos/5-row))
+         {
+//            cout << "On diagonal \n";
+            for (int idiag = 1; idiag < abs(currentpos%5-col); idiag++)
+            {
+               int checkrow = (currentpos/5) + idiag*(row-currentpos/5)/abs(currentpos/5-row);
+               int checkcol = (currentpos%5) + idiag*(col-currentpos%5)/abs(currentpos%5-col);
+//               cout << "Checking " << checkrow << " " << checkcol << "\n";
+               if (board[checkrow*5+checkcol] != 0)
+               {
+                  return 0;
+               }
+            }
+         }
+//         else if ((currentpos-newpos)%6 == 0)
+//         {
+//         }
          else
          {
    //         cout << "Not a valid move by row/col\n";
@@ -155,30 +173,29 @@ void printboardstate(gamestate currgame)
       }
       cout << "\n";
    }
-   cout << "----------" << " Turn " << currgame.getturn() << "\n";
+   cout << "----------" << " Player " << currgame.getturn() << "\n";
 }
 
 void entermanualmove(gamestate &currgame)
 {
    int row, col;
    cin >> row >> col;
-   cout << "Attempting to apply move to " << row << " " << col << "\n";
+//   cout << "Attempting to apply move to " << row << " " << col << "\n";
    currgame.applymove(row,col);
 }
 
 int main()
 {
-   cout << "hello world\n";
+//   cout << "hello world\n";
    gamestate game1;
    game1.reset();
    printboardstate(game1);
 //   game1.applymove(2,2);
 //   printboardstate(game1);
-   entermanualmove(game1);
-   printboardstate(game1);
    while (!game1.gameover())
    {
       entermanualmove(game1);
       printboardstate(game1);
    }
+   cout << "Game Over: Player " << game1.getturn() << " loses\n";
 }
