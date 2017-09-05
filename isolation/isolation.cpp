@@ -11,7 +11,11 @@ class gamestate
       int boardstate(int row, int col)
       {
          return board[row*5+col];
-      };
+      }
+      int getturn()
+      {
+         return turn;
+      }
       int applymove(int row, int col)
       {
          int position = row*5+col;
@@ -46,50 +50,83 @@ class gamestate
             return 0;
          }
       }
-   int islegalmove(int row, int col, int player)
-   {
-      int currentpos;
-      if (player == 1)
+      int islegalmove(int row, int col, int player)
       {
-         currentpos = pos1;
+         int currentpos;
+         if (player == 1)
+         {
+            currentpos = pos1;
+         }
+         else
+         {
+            currentpos = pos2;
+         }
+         // check in bounds
+         if (row < 0 || row > 4 || col < 0 || col > 4)
+         {
+            return 0;
+         }
+//       cout << "Checking legality old pos: " << currentpos << "\n";
+         if (currentpos == -1)
+         {
+   //         cout << "First move legal in any position\n";
+         }
+         // if in row, col, or diag
+         else if (row == currentpos/5)
+         {
+            for(int icol = currentpos; icol%5 != col; icol = icol + (col-icol%5)/abs(col-icol%5))
+            {
+//               cout << "Checking col collision " << icol << " " << col << "\n";
+               if (board[icol] != 0 && icol != currentpos)
+               {
+//               cout << "Ran into existing col square\n";
+                  return 0;
+               }
+            }
+   //         cout << "Same row as last position\n";
+         }
+         else if (col == currentpos%5)
+         {
+            for(int irow = currentpos; irow/5 != row; irow = irow + 5*(row-irow/5)/abs(row-irow/5))
+            {
+//               cout << "Checking row collision " << irow << " " << row << "\n";
+               if (board[irow] != 0 && irow != currentpos)
+               {
+//               cout << "Ran into existing row square\n";
+                  return 0;
+               }
+            }
+   //         cout << "Same col as last position\n";
+         }
+         else
+         {
+   //         cout << "Not a valid move by row/col\n";
+            return 0;
+         }
+         // Check to make sure position is not occupied
+         if (board[row*5+col] != 0)
+         {
+   //         cout << "Spot is occupied\n";
+            return 0;
+         }
+   //      cout << "Fell out must be legal\n";
+         return 1;
       }
-      else
+      int gameover()
       {
-         currentpos = pos2;
+         for (int irow = 0; irow < 5; irow++)
+         {
+            for (int icol = 0; icol < 5; icol++)
+            {
+//               cout << "Checking move to " << irow << " " << icol << "\n";
+               if (islegalmove(irow,icol,turn))
+               {
+                  return 0;
+               }
+            }
+         }
+         return 1;
       }
-      // check in bounds
-      if (row < 0 || row > 4 || col < 0 || col > 4)
-      {
-         return 0;
-      }
-//      cout << "Checking legality old pos: " << currentpos << "\n";
-      if (currentpos == -1)
-      {
-//         cout << "First move legal in any position\n";
-      }
-      // if in row, col, or diag
-      else if (row == currentpos/5)
-      {
-//         cout << "Same row as last position\n";
-      }
-      else if (col == currentpos%5)
-      {
-//         cout << "Same col as last position\n";
-      }
-      else
-      {
-//         cout << "Not a valid move by row/col\n";
-         return 0;
-      }
-      // Check to make sure position is not occupied
-      if (board[row*5+col] != 0)
-      {
-//         cout << "Spot is occupied\n";
-         return 0;
-      }
-//      cout << "Fell out must be legal\n";
-      return 1;
-   }
 };
 
 void gamestate::reset()
@@ -118,7 +155,7 @@ void printboardstate(gamestate currgame)
       }
       cout << "\n";
    }
-   cout << "----------\n";
+   cout << "----------" << " Turn " << currgame.getturn() << "\n";
 }
 
 void entermanualmove(gamestate &currgame)
@@ -139,12 +176,9 @@ int main()
 //   printboardstate(game1);
    entermanualmove(game1);
    printboardstate(game1);
-   entermanualmove(game1);
-   printboardstate(game1);
-   entermanualmove(game1);
-   printboardstate(game1);
-   entermanualmove(game1);
-   printboardstate(game1);
-   entermanualmove(game1);
-   printboardstate(game1);
+   while (!game1.gameover())
+   {
+      entermanualmove(game1);
+      printboardstate(game1);
+   }
 }
