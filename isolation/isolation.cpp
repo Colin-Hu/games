@@ -15,7 +15,8 @@ class gamestate
       int applymove(int row, int col)
       {
          int position = row*5+col;
-         if (board[position] == 0)
+//         if (board[position] == 0)
+         if (islegalmove(row,col,turn))
          {
             if (turn == 1)
             {
@@ -41,9 +42,54 @@ class gamestate
          }
          else
          {
+            cout << "Illegal move\n";
             return 0;
          }
       }
+   int islegalmove(int row, int col, int player)
+   {
+      int currentpos;
+      if (player == 1)
+      {
+         currentpos = pos1;
+      }
+      else
+      {
+         currentpos = pos2;
+      }
+      // check in bounds
+      if (row < 0 || row > 4 || col < 0 || col > 4)
+      {
+         return 0;
+      }
+//      cout << "Checking legality old pos: " << currentpos << "\n";
+      if (currentpos == -1)
+      {
+//         cout << "First move legal in any position\n";
+      }
+      // if in row, col, or diag
+      else if (row == currentpos/5)
+      {
+//         cout << "Same row as last position\n";
+      }
+      else if (col == currentpos%5)
+      {
+//         cout << "Same col as last position\n";
+      }
+      else
+      {
+//         cout << "Not a valid move by row/col\n";
+         return 0;
+      }
+      // Check to make sure position is not occupied
+      if (board[row*5+col] != 0)
+      {
+//         cout << "Spot is occupied\n";
+         return 0;
+      }
+//      cout << "Fell out must be legal\n";
+      return 1;
+   }
 };
 
 void gamestate::reset()
@@ -52,6 +98,7 @@ void gamestate::reset()
    {
       for (int icol=0; icol<5; icol++)
       {
+//         board[irow*5+icol] = irow*5+icol;
          board[irow*5+icol] = 0;
       }
    }
@@ -74,16 +121,30 @@ void printboardstate(gamestate currgame)
    cout << "----------\n";
 }
 
+void entermanualmove(gamestate &currgame)
+{
+   int row, col;
+   cin >> row >> col;
+   cout << "Attempting to apply move to " << row << " " << col << "\n";
+   currgame.applymove(row,col);
+}
+
 int main()
 {
    cout << "hello world\n";
    gamestate game1;
    game1.reset();
    printboardstate(game1);
-   game1.applymove(2,2);
+//   game1.applymove(2,2);
+//   printboardstate(game1);
+   entermanualmove(game1);
    printboardstate(game1);
-   game1.applymove(2,3);
+   entermanualmove(game1);
    printboardstate(game1);
-   game1.applymove(3,3);
+   entermanualmove(game1);
+   printboardstate(game1);
+   entermanualmove(game1);
+   printboardstate(game1);
+   entermanualmove(game1);
    printboardstate(game1);
 }
