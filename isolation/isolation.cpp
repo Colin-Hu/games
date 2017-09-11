@@ -141,8 +141,8 @@ class gamestate
             for (int icol = 0; icol < 5; icol++)
             {
 //               cout << "Checking move to " << irow << " " << icol << "\n";
-               currentmove.first = icol;
-               currentmove.second = irow;
+               currentmove.first = irow;
+               currentmove.second = icol;
                if (islegalmove(irow,icol,turn))
                {
 //                  cout << "Added " << irow << " " << icol << " to available moves\n";
@@ -191,6 +191,21 @@ void entermanualmove(gamestate &currgame)
    currgame.applymove(row,col);
 }
 
+void airand(gamestate &currgame)
+{
+   vector<pair<int,int> > availmoves;
+   availmoves = currgame.currentmoves();
+   int nummoves = availmoves.size();
+   int mymove = rand() % nummoves;
+   pair<int,int> chosenmove = availmoves[mymove];
+//   for (int i = 0; i < nummoves; i++)
+//   {
+//      cout << availmoves[i].first << " " << availmoves[i].second << "\n";
+//   }
+//   cout << "AI Moves " << mymove << " of " << nummoves << " Row Col " << chosenmove.first << " " << chosenmove.second << "\n";
+   currgame.applymove(chosenmove.first,chosenmove.second);
+}
+
 int main()
 {
 //   cout << "hello world\n";
@@ -201,7 +216,14 @@ int main()
 //   printboardstate(game1);
    while (!game1.currentmoves().empty())
    {
-      entermanualmove(game1);
+      if (game1.getturn() == 1)
+      {
+         entermanualmove(game1);
+      }
+      else
+      {
+      airand(game1);
+      }
       printboardstate(game1);
    }
    cout << "Game Over: Player " << game1.getturn() << " loses\n";
