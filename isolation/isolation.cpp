@@ -1,5 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
+#include <utility>
+#include <vector>
 using namespace std;
 
 class gamestate
@@ -130,20 +132,25 @@ class gamestate
    //      cout << "Fell out must be legal\n";
          return 1;
       }
-      int gameover()
+      vector<pair<int,int> > currentmoves()
       {
+         vector<pair<int,int> > availmoves;
+         pair <int, int> currentmove;
          for (int irow = 0; irow < 5; irow++)
          {
             for (int icol = 0; icol < 5; icol++)
             {
 //               cout << "Checking move to " << irow << " " << icol << "\n";
+               currentmove.first = icol;
+               currentmove.second = irow;
                if (islegalmove(irow,icol,turn))
                {
-                  return 0;
+//                  cout << "Added " << irow << " " << icol << " to available moves\n";
+                  availmoves.push_back(currentmove);
                }
             }
          }
-         return 1;
+         return availmoves;
       }
 };
 
@@ -192,7 +199,7 @@ int main()
    printboardstate(game1);
 //   game1.applymove(2,2);
 //   printboardstate(game1);
-   while (!game1.gameover())
+   while (!game1.currentmoves().empty())
    {
       entermanualmove(game1);
       printboardstate(game1);
