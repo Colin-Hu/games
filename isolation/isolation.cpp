@@ -46,7 +46,12 @@ void aiiterative(gamestate &currgame)
 {
    mytree decisiontree;
    decisiontree.initialize();
-   decisiontree.addlevel(currgame,2);
+   cout << "First AI \n";
+   decisiontree.addlevel(currgame, decisiontree);
+   cout << "Second AI \n";
+   decisiontree.addlevel(currgame, decisiontree);
+   cout << "Third AI \n";
+   decisiontree.addlevel(currgame, decisiontree);
 }
 
 int main()

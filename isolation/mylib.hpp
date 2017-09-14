@@ -182,36 +182,34 @@ class mytree
          move.second = -1;
          level = 0;
       }
-      void addlevel(gamestate currgame, int depth)
+      void addlevel(gamestate currgame, mytree &currtree)
       {
-         cout << "Entering addlevel depth " << depth << " level " << this->level <<"\n";
-         if (depth > 0)
+         if (currtree.children.size() == 0)
          {
-            if (this->children.size() == 0)
+            vector<pair<int,int> > possiblemoves = currgame.currentmoves();
+            cout << "Adding to level " << currtree.level << " possiblemoves " << possiblemoves.size() << "\n";
+            for (int i = 0; i < possiblemoves.size(); i++)
             {
-               vector<pair<int,int> > possiblemoves = currgame.currentmoves();
-               cout << "Adding to level \n";
-               for (int i = 0; i < possiblemoves.size(); i++)
-               {
-                  mytree newnode;
-                  newnode.initialize();
-                  newnode.parent = this;
-                  newnode.level = this->level + 1;
-                  newnode.move.first = possiblemoves[i].first;
-                  newnode.move.second = possiblemoves[i].second;
-                  cout << "Added move for player " << newnode.move.first << " " << newnode.move.second << " " << currgame.getturn() << " " << newnode.level << "\n";
-                  children.push_back(newnode);
-               }
-            }
-            cout << "Total children " << this->children.size() << "\n";
-            for (int i = 0; i < this->children.size(); i++)
-            {
-               gamestate tempgame = currgame;
-               cout << "Creating new game state by applying move " << this->children[i].move.first << " " << this->children[i].move.second << "\n";
-               tempgame.applymove(this->children[i].move.first,this->children[i].move.second);
-               cout << "Recursing " << depth-1 << "\n";
-               addlevel(tempgame, depth-1);
+               mytree newnode;
+               newnode.initialize();
+               newnode.parent = &currtree;
+               newnode.level = currtree.level + 1;
+               newnode.move.first = possiblemoves[i].first;
+               newnode.move.second = possiblemoves[i].second;
+               cout << "Added move for player " << newnode.move.first << " " << newnode.move.second << " " << currgame.getturn() << " " << newnode.level << "\n";
+               currtree.children.push_back(newnode);
             }
          }
+         else
+         {
+            for (int i = 0; i < currtree.children.size(); i++)
+            {
+               gamestate tempgame = currgame;
+               cout << "Creating new game state by applying move " << currtree.children[i].move.first << " " << currtree.children[i].move.second << "\n";
+               tempgame.applymove(currtree.children[i].move.first,currtree.children[i].move.second);
+               addlevel(tempgame,currtree.children[i]);
+            }
+         }
+         cout << "Exiting add level\n";
       }
 };
