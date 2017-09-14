@@ -46,12 +46,15 @@ void aiiterative(gamestate &currgame)
 {
    mytree decisiontree;
    decisiontree.initialize();
-   cout << "First AI \n";
-   decisiontree.addlevel(currgame, decisiontree);
-   cout << "Second AI \n";
-   decisiontree.addlevel(currgame, decisiontree);
-   cout << "Third AI \n";
-   decisiontree.addlevel(currgame, decisiontree);
+   decisiontree.createtree(currgame, decisiontree,3);
+   decisiontree.evaluatetree(currgame, decisiontree);
+   float opteval = decisiontree.propagateminimax(currgame, decisiontree);
+   int mymove = decisiontree.selectmove(decisiontree, opteval);
+   vector<pair<int,int> > availmoves;
+   availmoves = currgame.currentmoves();
+   pair<int,int> chosenmove = availmoves[mymove];
+   currgame.applymove(chosenmove.first,chosenmove.second);
+   cout << "My move " << mymove << " " << opteval << "\n";
 }
 
 int main()
@@ -62,7 +65,6 @@ int main()
    printboardstate(game1);
 //   game1.applymove(2,2);
 //   printboardstate(game1);
-   aiiterative(game1);
    while (!game1.currentmoves().empty())
    {
       if (game1.getturn() == 1)
@@ -71,7 +73,8 @@ int main()
       }
       else
       {
-         airand(game1);
+         //airand(game1);
+         aiiterative(game1);
       }
       printboardstate(game1);
    }

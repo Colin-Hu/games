@@ -181,13 +181,14 @@ class mytree
          move.first = -1;
          move.second = -1;
          level = 0;
+         eval = -1;
       }
       void addlevel(gamestate currgame, mytree &currtree)
       {
          if (currtree.children.size() == 0)
          {
             vector<pair<int,int> > possiblemoves = currgame.currentmoves();
-            cout << "Adding to level " << currtree.level << " possiblemoves " << possiblemoves.size() << "\n";
+//            cout << "Adding to level " << currtree.level << " possiblemoves " << possiblemoves.size() << "\n";
             for (int i = 0; i < possiblemoves.size(); i++)
             {
                mytree newnode;
@@ -196,7 +197,7 @@ class mytree
                newnode.level = currtree.level + 1;
                newnode.move.first = possiblemoves[i].first;
                newnode.move.second = possiblemoves[i].second;
-               cout << "Added move for player " << newnode.move.first << " " << newnode.move.second << " " << currgame.getturn() << " " << newnode.level << "\n";
+//               cout << "Added move for player " << newnode.move.first << " " << newnode.move.second << " " << currgame.getturn() << " " << newnode.level << "\n";
                currtree.children.push_back(newnode);
             }
          }
@@ -205,11 +206,84 @@ class mytree
             for (int i = 0; i < currtree.children.size(); i++)
             {
                gamestate tempgame = currgame;
-               cout << "Creating new game state by applying move " << currtree.children[i].move.first << " " << currtree.children[i].move.second << "\n";
+//               cout << "Creating new game state by applying move " << currtree.children[i].move.first << " " << currtree.children[i].move.second << "\n";
                tempgame.applymove(currtree.children[i].move.first,currtree.children[i].move.second);
                addlevel(tempgame,currtree.children[i]);
             }
          }
-         cout << "Exiting add level\n";
+//         cout << "Exiting add level\n";
+      }
+      void createtree(gamestate currgame, mytree &currtree, int depth)
+      {
+         for (int i=0; i<depth; i++)
+         {
+            cout << "AI Depth " << i << "\n";
+            currtree.addlevel(currgame,currtree);
+         }
+      }
+      void evaluatetree(gamestate currgame, mytree &currtree)
+      {
+         if (currtree.children.size() == 0)
+         {
+            currtree.eval = (float)currgame.currentmoves().size();
+//            cout << "Assigning eval value " << currtree.eval << "\n";
+         }
+         else
+         {
+            for (int i=0; i<currtree.children.size(); i++)
+            {
+               gamestate tempgame = currgame;
+               tempgame.applymove(currtree.children[i].move.first,currtree.children[i].move.second);
+               currtree.children[i].evaluatetree(tempgame, currtree.children[i]);
+            }
+         }
+      }
+      float propagateminimax(gamestate currgame, mytree &currtree)
+      {
+         if (currtree.children.size() != 0)
+         {
+            float curreval = 0;
+            float opteval;
+            if (currgame.getturn() == 2)
+            {
+               opteval = 0;
+            }
+            else
+            {
+               opteval = 25;
+            }
+            for (int i=0; i<currtree.children.size(); i++)
+            {
+               gamestate tempgame = currgame;
+               tempgame.applymove(currtree.children[i].move.first,currtree.children[i].move.second);
+               curreval = currtree.children[i].propagateminimax(tempgame, currtree.children[i]);
+//               cout << "Current evaluation and turn " << curreval << " " << opteval << " " << currgame.getturn() << "\n";
+               if (currgame.getturn() == 2)
+               {
+                  opteval = max(opteval, curreval);
+               }
+               else
+               {
+                  opteval = min(opteval, curreval);
+               }
+            }
+            currtree.eval = curreval;
+//            cout << "Propagated eval up " << currtree.eval << "\n";
+         }
+         else
+         {
+//            cout << "At bottom of tree\n";
+         }
+         return currtree.eval;
+      }
+      int selectmove(mytree &currtree, float opteval)
+      {
+         for (int i=0; i<currtree.children.size(); i++)
+         {
+            if (opteval = currtree.children[i].eval)
+            {
+               return i;
+            }
+         }
       }
 };
