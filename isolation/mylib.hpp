@@ -130,7 +130,7 @@ class gamestate
    //      cout << "Fell out must be legal\n";
          return 1;
       }
-      vector<pair<int,int> > currentmoves()
+      vector<pair<int,int> > currentmoves(int player)
       {
          vector<pair<int,int> > availmoves;
          pair <int, int> currentmove;
@@ -141,7 +141,7 @@ class gamestate
 //               cout << "Checking move to " << irow << " " << icol << "\n";
                currentmove.first = irow;
                currentmove.second = icol;
-               if (islegalmove(irow,icol,turn))
+               if (islegalmove(irow,icol,player))
                {
 //                  cout << "Added " << irow << " " << icol << " to available moves\n";
                   availmoves.push_back(currentmove);
@@ -187,7 +187,7 @@ class mytree
       {
          if (currtree.children.size() == 0)
          {
-            vector<pair<int,int> > possiblemoves = currgame.currentmoves();
+            vector<pair<int,int> > possiblemoves = currgame.currentmoves(currgame.getturn());
 //            cout << "Adding to level " << currtree.level << " possiblemoves " << possiblemoves.size() << "\n";
             for (int i = 0; i < possiblemoves.size(); i++)
             {
@@ -223,9 +223,16 @@ class mytree
       }
       void evaluatetree(gamestate currgame, mytree &currtree)
       {
+//         cout << "+Entering EvalTree " << currtree.move.first << " " << currtree.move.second << "\n";
          if (currtree.children.size() == 0)
          {
-            currtree.eval = (float)currgame.currentmoves().size();
+            currtree.eval = (float)currgame.currentmoves(2).size();
+//            cout << "Game state ";
+//            for (int i=0; i<25; i++)
+//          {
+//          cout << currgame.board[i];
+//          }
+//            cout << "\n";
 //            cout << "Assigning eval value " << currtree.eval << "\n";
          }
          else
@@ -237,9 +244,11 @@ class mytree
                currtree.children[i].evaluatetree(tempgame, currtree.children[i]);
             }
          }
+//         cout << "-Exiting EvalTree " << currtree.move.first << " " << currtree.move.second << "\n";
       }
       float propagateminimax(gamestate currgame, mytree &currtree)
       {
+//         cout << "+Entering propagate for move " << currtree.move.first << " " << currtree.move.second << "\n";
          if (currtree.children.size() != 0)
          {
             float curreval = 0;
@@ -266,14 +275,15 @@ class mytree
                {
                   opteval = min(opteval, curreval);
                }
+//               cout << "Minimax evaluation and turn " << curreval << " " << opteval << " " << currgame.getturn() << "\n";
             }
-            currtree.eval = curreval;
-//            cout << "Propagated eval up " << currtree.eval << "\n";
+            currtree.eval = opteval;
          }
          else
          {
 //            cout << "At bottom of tree\n";
          }
+//         cout << "-Propagated eval up " << currtree.eval << "\n";
          return currtree.eval;
       }
       int selectmove(mytree &currtree, float opteval)

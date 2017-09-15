@@ -30,7 +30,7 @@ void entermanualmove(gamestate &currgame)
 void airand(gamestate &currgame)
 {
    vector<pair<int,int> > availmoves;
-   availmoves = currgame.currentmoves();
+   availmoves = currgame.currentmoves(2);
    int nummoves = availmoves.size();
    int mymove = rand() % nummoves;
    pair<int,int> chosenmove = availmoves[mymove];
@@ -46,12 +46,12 @@ void aiiterative(gamestate &currgame)
 {
    mytree decisiontree;
    decisiontree.initialize();
-   decisiontree.createtree(currgame, decisiontree,3);
+   decisiontree.createtree(currgame, decisiontree,6);
    decisiontree.evaluatetree(currgame, decisiontree);
    float opteval = decisiontree.propagateminimax(currgame, decisiontree);
    int mymove = decisiontree.selectmove(decisiontree, opteval);
    vector<pair<int,int> > availmoves;
-   availmoves = currgame.currentmoves();
+   availmoves = currgame.currentmoves(2);
    pair<int,int> chosenmove = availmoves[mymove];
    currgame.applymove(chosenmove.first,chosenmove.second);
    cout << "My move " << mymove << " " << opteval << "\n";
@@ -65,9 +65,10 @@ int main()
    printboardstate(game1);
 //   game1.applymove(2,2);
 //   printboardstate(game1);
-   while (!game1.currentmoves().empty())
+   while (!game1.currentmoves(game1.getturn()).empty())
    {
       if (game1.getturn() == 1)
+//      if (true)
       {
          entermanualmove(game1);
       }
@@ -77,6 +78,7 @@ int main()
          aiiterative(game1);
       }
       printboardstate(game1);
+//      cout << "Possible moves: " << game1.currentmoves().size() << "\n";
    }
    cout << "Game Over: Player " << game1.getturn() << " loses\n";
 }
