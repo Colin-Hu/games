@@ -30,7 +30,7 @@ void entermanualmove(gamestate &currgame)
 void airand(gamestate &currgame)
 {
    vector<pair<int,int> > availmoves;
-   availmoves = currgame.currentmoves(2);
+   availmoves = currgame.currentmoves(currgame.getturn());
    int nummoves = availmoves.size();
    int mymove = rand() % nummoves;
    pair<int,int> chosenmove = availmoves[mymove];
@@ -51,7 +51,7 @@ void aiiterative(gamestate &currgame)
    float opteval = decisiontree.propagateminimax(currgame, decisiontree);
    int mymove = decisiontree.selectmove(decisiontree, opteval);
    vector<pair<int,int> > availmoves;
-   availmoves = currgame.currentmoves(2);
+   availmoves = currgame.currentmoves(currgame.getturn());
    pair<int,int> chosenmove = availmoves[mymove];
    currgame.applymove(chosenmove.first,chosenmove.second);
    cout << "My move " << mymove << " " << opteval << "\n";
@@ -70,7 +70,8 @@ int main()
       if (game1.getturn() == 1)
 //      if (true)
       {
-         entermanualmove(game1);
+//         entermanualmove(game1);
+         airand(game1);
       }
       else
       {
