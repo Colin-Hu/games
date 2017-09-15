@@ -183,8 +183,9 @@ class mytree
          level = 0;
          eval = -1;
       }
-      void addlevel(gamestate currgame, mytree &currtree)
+      int addlevel(gamestate currgame, mytree &currtree)
       {
+         int success = 0;
          if (currtree.children.size() == 0)
          {
             vector<pair<int,int> > possiblemoves = currgame.currentmoves(currgame.getturn());
@@ -199,6 +200,7 @@ class mytree
                newnode.move.second = possiblemoves[i].second;
 //               cout << "Added move for player " << newnode.move.first << " " << newnode.move.second << " " << currgame.getturn() << " " << newnode.level << "\n";
                currtree.children.push_back(newnode);
+               success = 1;
             }
          }
          else
@@ -208,18 +210,27 @@ class mytree
                gamestate tempgame = currgame;
 //               cout << "Creating new game state by applying move " << currtree.children[i].move.first << " " << currtree.children[i].move.second << "\n";
                tempgame.applymove(currtree.children[i].move.first,currtree.children[i].move.second);
-               addlevel(tempgame,currtree.children[i]);
+               if (addlevel(tempgame,currtree.children[i]))
+               {
+                  success = 1;
+               }
             }
          }
+         return success;
 //         cout << "Exiting add level\n";
       }
-      void createtree(gamestate currgame, mytree &currtree, int depth)
+      int createtree(gamestate currgame, mytree &currtree, int depth)
       {
+         int success = 0;
          for (int i=0; i<depth; i++)
          {
-            cout << "AI Depth " << i << "\n";
-            currtree.addlevel(currgame,currtree);
+//            cout << "AI Depth " << i << "\n";
+            if(currtree.addlevel(currgame,currtree))
+            {
+               success = 1;
+            }
          }
+         return success;
       }
       void evaluatetree(gamestate currgame, mytree &currtree)
       {
@@ -227,6 +238,10 @@ class mytree
          if (currtree.children.size() == 0)
          {
             currtree.eval = (float)currgame.currentmoves(2).size();
+            if (currgame.currentmoves(1).size() == 0)
+            {
+               currtree.eval = 1.0;
+            }
 //            cout << "Game state ";
 //            for (int i=0; i<25; i++)
 //          {

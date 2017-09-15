@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <utility>
 #include <vector>
+#include <chrono>
 #include "mylib.hpp"
 using namespace std;
 
@@ -42,19 +43,45 @@ void airand(gamestate &currgame)
    currgame.applymove(chosenmove.first,chosenmove.second);
 }
 
-void aiiterative(gamestate &currgame)
+void aiiterative(gamestate &currgame, double timepermove)
 {
+   cout << "Thinking... \n";
+   chrono::time_point<chrono::system_clock> start, end, lstart;
+   chrono::duration<double> elapsed_seconds;
    mytree decisiontree;
+   float opteval;
+   int mymove;
+   int addedlevel = 1;
+   int currentlevel = 0;
+   double lastleveltime;
+   start = chrono::system_clock::now();
    decisiontree.initialize();
-   decisiontree.createtree(currgame, decisiontree,6);
-   decisiontree.evaluatetree(currgame, decisiontree);
-   float opteval = decisiontree.propagateminimax(currgame, decisiontree);
-   int mymove = decisiontree.selectmove(decisiontree, opteval);
+
+   while(lastleveltime < timepermove/4 && addedlevel)
+   {
+      lstart = chrono::system_clock::now();
+      addedlevel = decisiontree.createtree(currgame, decisiontree,1);
+      decisiontree.evaluatetree(currgame, decisiontree);
+      opteval = decisiontree.propagateminimax(currgame, decisiontree);
+      mymove = decisiontree.selectmove(decisiontree, opteval);
+      end = chrono::system_clock::now();
+      elapsed_seconds = end-lstart;
+      lastleveltime = elapsed_seconds.count();
+      if (addedlevel)
+      {
+         currentlevel++;
+      }
+      cout << "Calculating move " << currentlevel << "\n";
+   }
+
    vector<pair<int,int> > availmoves;
    availmoves = currgame.currentmoves(currgame.getturn());
    pair<int,int> chosenmove = availmoves[mymove];
    currgame.applymove(chosenmove.first,chosenmove.second);
+   end = chrono::system_clock::now();
+   elapsed_seconds = end-start;
    cout << "My move " << mymove << " " << opteval << "\n";
+   cout << "End Time " << elapsed_seconds.count() << "\n";
 }
 
 int main()
@@ -70,13 +97,13 @@ int main()
       if (game1.getturn() == 1)
 //      if (true)
       {
-//         entermanualmove(game1);
-         airand(game1);
+         entermanualmove(game1);
+//         airand(game1);
       }
       else
       {
          //airand(game1);
-         aiiterative(game1);
+         aiiterative(game1,30.0);
       }
       printboardstate(game1);
 //      cout << "Possible moves: " << game1.currentmoves().size() << "\n";
