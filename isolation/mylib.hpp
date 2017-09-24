@@ -232,6 +232,14 @@ class mytree
          }
          return success;
       }
+      void prunetree(mytree &currtree)
+      {
+         for (int i = 0; i < currtree.children.size(); i++)
+         {
+            currtree.children[i].prunetree(currtree.children[i]);
+         }
+         currtree.children.clear();
+      }
       void evaluatetree(gamestate currgame, mytree &currtree)
       {
 //         cout << "+Entering EvalTree " << currtree.move.first << " " << currtree.move.second << "\n";
@@ -289,6 +297,58 @@ class mytree
                else
                {
                   opteval = min(opteval, curreval);
+               }
+//               cout << "Minimax evaluation and turn " << curreval << " " << opteval << " " << currgame.getturn() << "\n";
+            }
+            currtree.eval = opteval;
+         }
+         else
+         {
+//            cout << "At bottom of tree\n";
+         }
+//         cout << "-Propagated eval up " << currtree.eval << "\n";
+         return currtree.eval;
+      }
+      float propagatealphabeta(float &alpha, float &beta, gamestate currgame, mytree &currtree)
+      {
+//         cout << "+Entering propagate for move " << currtree.move.first << " " << currtree.move.second << "\n";
+         if (currtree.children.size() != 0)
+         {
+            float curreval = 0;
+            float opteval;
+            if (currgame.getturn() == 2)
+            {
+               opteval = beta;
+            }
+            else
+            {
+               opteval = alpha;
+            }
+            for (int i=0; i<currtree.children.size(); i++)
+            {
+               gamestate tempgame = currgame;
+               tempgame.applymove(currtree.children[i].move.first,currtree.children[i].move.second);
+               curreval = currtree.children[i].propagatealphabeta(alpha, beta, tempgame, currtree.children[i]);
+//               cout << "Current evaluation and turn " << curreval << " " << opteval << " " << currgame.getturn() << "\n";
+               if (currgame.getturn() == 2)
+               {
+                  opteval = max(opteval, curreval);
+                  alpha = max(opteval, alpha);
+                  if (beta <= alpha)
+                  {
+                     break;
+                     cout << "Prune tree\n";
+                  }
+               }
+               else
+               {
+                  opteval = min(opteval, curreval);
+                  beta = min(opteval, beta);
+                  if (beta <= alpha)
+                  {
+                     break;
+                     cout << "Prune tree\n";
+                  }
                }
 //               cout << "Minimax evaluation and turn " << curreval << " " << opteval << " " << currgame.getturn() << "\n";
             }

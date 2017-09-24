@@ -47,31 +47,40 @@ void aiiterative(gamestate &currgame, double timepermove)
 {
    cout << "Thinking... \n";
    chrono::time_point<chrono::system_clock> start, end, lstart;
-   chrono::duration<double> elapsed_seconds;
+   chrono::duration<double> elapsed_seconds, total_time;
    mytree decisiontree;
-   float opteval;
+   float opteval, alpha = 0, beta = 25;
    int mymove;
    int addedlevel = 1;
    int currentlevel = 0;
-   double lastleveltime;
+   double lastleveltime, totaltime;
    start = chrono::system_clock::now();
    decisiontree.initialize();
 
    while(lastleveltime < timepermove/4 && addedlevel)
    {
+      cout << "Calculating move " << currentlevel << "\n";
       lstart = chrono::system_clock::now();
-      addedlevel = decisiontree.createtree(currgame, decisiontree,1);
+//      addedlevel = decisiontree.createtree(currgame, decisiontree,1);
+      addedlevel = decisiontree.addlevel(currgame, decisiontree);
       decisiontree.evaluatetree(currgame, decisiontree);
-      opteval = decisiontree.propagateminimax(currgame, decisiontree);
+//      opteval = decisiontree.propagateminimax(currgame, decisiontree);
+      opteval = decisiontree.propagatealphabeta(alpha, beta, currgame, decisiontree);
       mymove = decisiontree.selectmove(decisiontree, opteval);
       end = chrono::system_clock::now();
       elapsed_seconds = end-lstart;
       lastleveltime = elapsed_seconds.count();
+      total_time = end-start;
+      totaltime = total_time.count();
       if (addedlevel)
       {
          currentlevel++;
       }
-      cout << "Calculating move " << currentlevel << "\n";
+      if (totaltime > timepermove)
+      {
+         decisiontree.prunetree(decisiontree);
+         break;
+      }
    }
 
    vector<pair<int,int> > availmoves;
@@ -103,7 +112,7 @@ int main()
       else
       {
          //airand(game1);
-         aiiterative(game1,30.0);
+         aiiterative(game1,10.0);
       }
       printboardstate(game1);
 //      cout << "Possible moves: " << game1.currentmoves().size() << "\n";
