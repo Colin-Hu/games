@@ -309,7 +309,7 @@ class mytree
 //         cout << "-Propagated eval up " << currtree.eval << "\n";
          return currtree.eval;
       }
-      float propagatealphabeta(float &alpha, float &beta, gamestate currgame, mytree &currtree)
+      float propagatealphabeta(float alpha, float beta, gamestate currgame, mytree &currtree)
       {
 //         cout << "+Entering propagate for move " << currtree.move.first << " " << currtree.move.second << "\n";
 //         cout << "Current Alpha/Beta " << alpha << " " << beta << "\n";
@@ -339,7 +339,7 @@ class mytree
                   if (beta <= alpha)
                   {
 //                     cout << "Prune tree alpha " << alpha << " " << beta << "\n";
-//                     break;
+                     break;
                   }
                }
                else
@@ -349,7 +349,7 @@ class mytree
                   if (beta <= alpha)
                   {
 //                     cout << "Prune tree beta " << alpha << " " << beta << "\n";
-//                     break;
+                     break;
                   }
                }
             }
