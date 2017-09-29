@@ -248,7 +248,7 @@ class mytree
             currtree.eval = (float)currgame.currentmoves(2).size();
             if (currgame.currentmoves(1).size() == 0)
             {
-               currtree.eval = 1.0;
+//               currtree.eval = 1.0;
             }
 //            cout << "Game state ";
 //            for (int i=0; i<25; i++)
@@ -312,17 +312,19 @@ class mytree
       float propagatealphabeta(float &alpha, float &beta, gamestate currgame, mytree &currtree)
       {
 //         cout << "+Entering propagate for move " << currtree.move.first << " " << currtree.move.second << "\n";
+//         cout << "Current Alpha/Beta " << alpha << " " << beta << "\n";
+//         cout << "Num children " << currtree.children.size() << "\n";
          if (currtree.children.size() != 0)
          {
             float curreval = 0;
             float opteval;
             if (currgame.getturn() == 2)
             {
-               opteval = beta;
+               opteval = 0;
             }
             else
             {
-               opteval = alpha;
+               opteval = 25;
             }
             for (int i=0; i<currtree.children.size(); i++)
             {
@@ -336,8 +338,8 @@ class mytree
                   alpha = max(opteval, alpha);
                   if (beta <= alpha)
                   {
-                     break;
-                     cout << "Prune tree\n";
+//                     cout << "Prune tree alpha " << alpha << " " << beta << "\n";
+//                     break;
                   }
                }
                else
@@ -346,12 +348,12 @@ class mytree
                   beta = min(opteval, beta);
                   if (beta <= alpha)
                   {
-                     break;
-                     cout << "Prune tree\n";
+//                     cout << "Prune tree beta " << alpha << " " << beta << "\n";
+//                     break;
                   }
                }
-//               cout << "Minimax evaluation and turn " << curreval << " " << opteval << " " << currgame.getturn() << "\n";
             }
+//            cout << "AlphaBeta evaluation and turn " << curreval << " " << opteval << " " << currgame.getturn() << "\n";
             currtree.eval = opteval;
          }
          else
@@ -363,12 +365,20 @@ class mytree
       }
       int selectmove(mytree &currtree, float opteval)
       {
+         int nummoves = 0;
+         int firstmove = -1;
          for (int i=0; i<currtree.children.size(); i++)
          {
-            if (opteval = currtree.children[i].eval)
+            if (opteval == currtree.children[i].eval)
             {
-               return i;
+               if (firstmove == -1)
+               {
+                  firstmove = i;
+               }
+               nummoves++;
             }
          }
+//         cout << "Total possible equal moves " << opteval << " " << nummoves << "\n";
+         return firstmove;
       }
 };

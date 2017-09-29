@@ -49,16 +49,17 @@ void aiiterative(gamestate &currgame, double timepermove)
    chrono::time_point<chrono::system_clock> start, end, lstart;
    chrono::duration<double> elapsed_seconds, total_time;
    mytree decisiontree;
-   float opteval, alpha = 0, beta = 25;
    int mymove;
    int addedlevel = 1;
    int currentlevel = 0;
+   float opteval = 0;
    double lastleveltime, totaltime;
    start = chrono::system_clock::now();
    decisiontree.initialize();
 
    while(lastleveltime < timepermove/4 && addedlevel)
    {
+      float alpha = 0, beta = 25;
       cout << "Calculating move " << currentlevel << "\n";
       lstart = chrono::system_clock::now();
 //      addedlevel = decisiontree.createtree(currgame, decisiontree,1);
