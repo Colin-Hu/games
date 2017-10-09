@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -36,6 +37,23 @@ class boardstate
          }
          cout << "\n";
       }
+      int boardsize()
+      {
+         return positions.size();
+      }
+      int accessboard(int pos)
+      {
+         return positions[pos];
+      }
+      int assignvalue(int pos, int value)
+      {
+         if (value < 1 || value > positions.size())
+         {
+            cout << "assignvalue: Error invalid position " << pos << " " << value << "\n";
+            return 0;
+         }
+         positions[pos] = value;
+      }
       int assignvalues(int values[])
       {
          for (int i=0; i<positions.size(); i++)
@@ -48,6 +66,28 @@ class boardstate
             positions[i] = values[i];
          }
          return 1;
+      }
+      int randomboard()
+      {
+         for (int i=0; i<positions.size(); i++)
+         {
+            positions[i] = rand() % positions.size() + 1;
+         }
+      }
+      int betterrandomboard()
+      {
+         vector<int> pospool;
+         for (int i=0; i<positions.size(); i++)
+         {
+            pospool.push_back(i+1);
+         }
+         for (int i=0; i<positions.size(); i++)
+         {
+            int selectedpos;
+            selectedpos = rand() % pospool.size();
+            positions[i] = pospool[selectedpos];
+            pospool.erase(pospool.begin()+selectedpos);
+         }
       }
       int evaluatefitness()
       {
@@ -71,14 +111,43 @@ class boardstate
       }
 };
 
+boardstate mate(boardstate parentA, boardstate parentB)
+{
+   boardstate child(parentA.boardsize());
+   for (int i=0; i<child.boardsize(); i++)
+   {
+      if (i < child.boardsize()/2)
+      {
+         child.assignvalue(i,parentA.accessboard(i));
+      }
+      else
+      {
+         child.assignvalue(i,parentB.accessboard(i));
+      }
+   }
+   return child;
+}
+
 int main()
 {
    cout << "Hello World\n";
    cout << "4 " << factorial(4) << "\n";
    boardstate newboard(8);
    newboard.printboard();
-   int temparray[8] = {4,2,7,4,1,6,3,8};
-   newboard.assignvalues(temparray);
+   int temparray[8] = {2,4,6,8,3,1,7,5};
+//   newboard.assignvalues(temparray);
+//   newboard.randomboard();
+   newboard.betterrandomboard();
    newboard.printboard();
    cout << "Fitness " << newboard.evaluatefitness() << "\n";
+   boardstate parent1(8), parent2(8);
+   parent1.randomboard();
+   cout << "Parent 1 ";
+   parent1.printboard();
+   parent2.randomboard();
+   cout << "Parent 2 ";
+   parent2.printboard();
+   boardstate childboard = mate(parent1,parent2);
+   cout << "Child board ";
+   childboard.printboard();
 }
