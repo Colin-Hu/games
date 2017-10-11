@@ -128,6 +128,78 @@ boardstate mate(boardstate parentA, boardstate parentB)
    return child;
 }
 
+class boardpopulation
+{
+      vector<boardstate> totalpop;
+      vector<int> matingprob;
+   public:
+      boardpopulation(int nel, int npop)
+      {
+         boardstate newboard(nel);
+         for (int i=0; i<npop; i++)
+         {
+            newboard.randomboard();
+            totalpop.push_back(newboard);
+         }
+      }
+      int clearpop()
+      {
+         totalpop.clear();
+      }
+      int addboard(boardstate newboard)
+      {
+         totalpop.push_back(newboard);
+      }
+      int printpop()
+      {
+         for (int i=0; i<totalpop.size(); i++)
+         {
+            cout << i << " Fitness " << totalpop[i].evaluatefitness() << " ";
+            totalpop[i].printboard();
+         }
+      }
+      boardpopulation createnewgeneration()
+      {
+         boardpopulation newgeneration(totalpop[0].boardsize(), totalpop.size());
+         newgeneration.clearpop();
+         // Create probability distribution of parents based on fitness
+         for (int i=0; i<totalpop.size(); i++)
+         {
+            for (int lots=0; lots<totalpop[i].evaluatefitness(); lots++)
+            {
+               matingprob.push_back(i);
+            }
+         }
+         // Create 2 children per pair of parents based on mate()
+         for (int i=0; i<totalpop.size()/2; i++)
+         {
+            int parent1pos = rand() % matingprob.size();
+            int parent2pos = rand() % matingprob.size();
+            boardstate childboard = mate(totalpop[matingprob[parent1pos]],totalpop[matingprob[parent2pos]]);
+            newgeneration.addboard(childboard);
+            childboard = mate(totalpop[matingprob[parent2pos]],totalpop[matingprob[parent1pos]]);
+            newgeneration.addboard(childboard);
+         }
+         return newgeneration;
+      }
+      int applymutation()
+      {
+         // Randomly mutate some children
+         // 1 in 4 chance of random single mutation
+         for (int i=0; i<totalpop.size(); i++)
+         {
+            int mutate = rand() % 4;
+            if (mutate == 0)
+            {
+               int position = rand() % totalpop[i].boardsize();
+               int value = rand() % totalpop[i].boardsize();
+               totalpop[i].assignvalue(position,value);
+               cout << "Mutating child " << i << " position " << position << " value " << value << "\n";
+            }
+         }
+      }
+};
+
 int main()
 {
    cout << "Hello World\n";
@@ -137,17 +209,29 @@ int main()
    int temparray[8] = {2,4,6,8,3,1,7,5};
 //   newboard.assignvalues(temparray);
 //   newboard.randomboard();
-   newboard.betterrandomboard();
-   newboard.printboard();
-   cout << "Fitness " << newboard.evaluatefitness() << "\n";
-   boardstate parent1(8), parent2(8);
-   parent1.randomboard();
-   cout << "Parent 1 ";
-   parent1.printboard();
-   parent2.randomboard();
-   cout << "Parent 2 ";
-   parent2.printboard();
-   boardstate childboard = mate(parent1,parent2);
-   cout << "Child board ";
-   childboard.printboard();
+//   newboard.betterrandomboard();
+//   newboard.printboard();
+//   cout << "Fitness " << newboard.evaluatefitness() << "\n";
+//   boardstate parent1(8), parent2(8);
+//   parent1.randomboard();
+//   cout << "Parent 1 ";
+//   parent1.printboard();
+//   parent2.randomboard();
+//   cout << "Parent 2 ";
+//   parent2.printboard();
+//   boardstate childboard = mate(parent1,parent2);
+//   cout << "Child board ";
+//   childboard.printboard();
+   cout << "Creating population\n";
+   boardpopulation gen1(8, 10);
+   gen1.printpop();
+   boardpopulation gen2 = gen1.createnewgeneration();
+   cout << "Finished newgen2\n";
+   gen2.printpop();
+   cout << "Mutating gen2\n";
+   gen2.applymutation();
+   gen2.printpop();
+//   boardpopulation gen3 = gen2.createnewgeneration();
+//   cout << "Finished newgen3\n";
+//   gen3.printpop();
 }
