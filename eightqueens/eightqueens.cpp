@@ -132,6 +132,7 @@ class boardpopulation
 {
       vector<boardstate> totalpop;
       vector<int> matingprob;
+      int maxfitness, fitpos;
    public:
       boardpopulation(int nel, int npop)
       {
@@ -141,6 +142,8 @@ class boardpopulation
             newboard.randomboard();
             totalpop.push_back(newboard);
          }
+         maxfitness = -1;
+         fitpos = -1;
       }
       int clearpop()
       {
@@ -185,53 +188,47 @@ class boardpopulation
       int applymutation()
       {
          // Randomly mutate some children
-         // 1 in 4 chance of random single mutation
+         // 1 in 3 chance of random single mutation
          for (int i=0; i<totalpop.size(); i++)
          {
-            int mutate = rand() % 4;
+            int mutate = rand() % 3;
             if (mutate == 0)
             {
                int position = rand() % totalpop[i].boardsize();
-               int value = rand() % totalpop[i].boardsize();
+               int value = rand() % totalpop[i].boardsize() + 1;
                totalpop[i].assignvalue(position,value);
-               cout << "Mutating child " << i << " position " << position << " value " << value << "\n";
+//               cout << "Mutating child " << i << " position " << position << " value " << value << "\n";
+            }
+            if (totalpop[i].evaluatefitness() > maxfitness)
+            {
+               maxfitness = totalpop[i].evaluatefitness();
+               fitpos = i;
             }
          }
+      }
+      int maxfit()
+      {
+         return maxfitness;
+      }
+      boardstate fitboard()
+      {
+         return totalpop[fitpos];
       }
 };
 
 int main()
 {
-   cout << "Hello World\n";
-   cout << "4 " << factorial(4) << "\n";
-   boardstate newboard(8);
-   newboard.printboard();
-   int temparray[8] = {2,4,6,8,3,1,7,5};
-//   newboard.assignvalues(temparray);
-//   newboard.randomboard();
-//   newboard.betterrandomboard();
-//   newboard.printboard();
-//   cout << "Fitness " << newboard.evaluatefitness() << "\n";
-//   boardstate parent1(8), parent2(8);
-//   parent1.randomboard();
-//   cout << "Parent 1 ";
-//   parent1.printboard();
-//   parent2.randomboard();
-//   cout << "Parent 2 ";
-//   parent2.printboard();
-//   boardstate childboard = mate(parent1,parent2);
-//   cout << "Child board ";
-//   childboard.printboard();
-   cout << "Creating population\n";
-   boardpopulation gen1(8, 10);
-   gen1.printpop();
-   boardpopulation gen2 = gen1.createnewgeneration();
-   cout << "Finished newgen2\n";
-   gen2.printpop();
-   cout << "Mutating gen2\n";
-   gen2.applymutation();
-   gen2.printpop();
-//   boardpopulation gen3 = gen2.createnewgeneration();
-//   cout << "Finished newgen3\n";
-//   gen3.printpop();
+   boardpopulation oldboard(8,50);
+   for (int generation = 0; generation < 1000; generation++)
+   {
+      boardpopulation newboard = oldboard.createnewgeneration();
+      newboard.applymutation();
+      cout << "Generation " << generation << " Best Fit " << newboard.maxfit() << "\n";
+      if (newboard.maxfit() == 28)
+      {
+         newboard.fitboard().printboard();
+         break;
+      }
+      oldboard = newboard;
+   }
 }
